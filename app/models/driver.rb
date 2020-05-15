@@ -9,7 +9,6 @@ class Driver < ApplicationRecord
   private
 
   def update_location?
-    byebug
     update_location
   end
 end
