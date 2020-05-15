@@ -12,6 +12,12 @@ module Api
         @driver.update!(location_params)
         json_response(nil, :accepted)
       end
+
+      def available_cabs
+        data = narrow_down_cabs(latitude: location_params.dig(:latitude), longitude: location_params.dig(:longitude))
+        json_response(data, :created)
+      end
+
       private
 
       def driver_params
