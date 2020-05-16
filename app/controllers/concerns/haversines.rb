@@ -1,36 +1,32 @@
 module Haversines
   def narrow_down_cabs(latitude:, longitude:)
-    byebug
-    radius = 4000 # todo put in .env
-    multiplier = 1.1 #; // multiplier = 1.1; is more reliable
-    p1_x = Calculator::DerivedPoints.new(lat: latitude, long: longitude, range: multiplier*radius, bearing: 0).calculate_derived_position.first
-    p2_y = Calculator::DerivedPoints.new(lat: latitude, long: longitude, range: multiplier*radius, bearing: 90).calculate_derived_position.second
-    p3_x = Calculator::DerivedPoints.new(lat: latitude, long: longitude, range: multiplier*radius, bearing: 180).calculate_derived_position.first
-    p4_y = Calculator::DerivedPoints.new(lat: latitude, long: longitude, range: multiplier*radius, bearing: 270).calculate_derived_position.second
-    # records = Driver.connection.select_all(the_sql(p1_x, p2_y, p3_x, p4_y)).to_hash
-    byebug
+    raise "Latitude and Longitude must be present in request" if latitude == nil or longitude == nil
     records = Driver.connection.select_all(sql(latitude, longitude)).to_hash
+    return no_cabs_response if records.count == 0
+    cabs_available_response(records)
   end
+  
+  #TODO Find a way to fix derived points to narrow down cabs before using haversines
   def sql(latitude,longitude)
-    # %(
-    #   SELECT *, 6371000 * acos(cos((Lat1 * #{(Math::PI / 180)}) ) * cos( (Lat2* #{(Math::PI / 180)} ) ) * cos( (Lng2* #{(Math::PI / 180)}) - (Lng1* #{(Math::PI / 180)}) ) + sin( (Lat1* #{(Math::PI / 180)}) ) * sin( (Lat2* #{(Math::PI / 180)})))) AS distance 
-    #   FROM DRIVERS 
-    #   HAVING distance < 4000 
-    #   ORDER BY distance 
-    #   LIMIT 0 , 20;
-    # )
     %(
-      SELECT id, ( 6371000 * acos( cos( radians(#{latitude}) ) * cos( radians( latitude ) ) * cos( radians(longitude) - radians(#{longitude}) ) + sin( radians(#{latitude}) ) * sin( radians(latitude)))) AS distance 
+      SELECT name, car_number, phone_number, ( 6371000 * acos( cos( radians(#{latitude}) ) * cos( radians( latitude ) ) * cos( radians(longitude) - radians(#{longitude}) ) + sin( radians(#{latitude}) ) * sin( radians(latitude)))) AS distance 
       FROM DRIVERS 
-      HAVING distance < 4000 
+      WHERE distance < 4000 
       ORDER BY distance 
       LIMIT 0 , 20;
     )
   end
-  def the_sql(p1_x, p2_y, p3_x, p4_y)
-    %(
-      SELECT * FROM DRIVERS WHERE latitude > #{p3_x.to_s} AND latitude <  #{p1_x.to_s} AND
-      longitude < #{p2_y.to_s} AND longitude > #{p4_y.to_s} 
-    )
+
+  def no_cabs_response
+    {
+      "message": "No cabs available!"
+    }
+  end
+
+  def cabs_available_response(records)
+    records.each { |h| h.delete("distance") }
+    {
+      "available_cabs": records
+    }
   end
 end

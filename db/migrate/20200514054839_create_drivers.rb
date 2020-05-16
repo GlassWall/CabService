@@ -10,5 +10,6 @@ class CreateDrivers < ActiveRecord::Migration[5.2]
       t.float :longitude
       t.timestamps
     end
+    add_index :drivers, [:latitude, :longitude]
   end
 end

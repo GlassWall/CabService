@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 2020_05_14_054839) do
     t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["latitude", "longitude"], name: "index_drivers_on_latitude_and_longitude"
   end
 
 end

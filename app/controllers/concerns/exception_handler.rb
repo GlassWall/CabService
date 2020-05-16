@@ -11,6 +11,10 @@ module ExceptionHandler
     rescue_from ActiveRecord::RecordInvalid do |e|
       error_response(e)
     end
+    
+    rescue_from StandardError do |e|
+      error_response(e)
+    end
   end
 
   private
