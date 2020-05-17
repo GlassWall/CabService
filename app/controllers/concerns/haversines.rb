@@ -6,14 +6,15 @@ module Haversines
     cabs_available_response(records)
   end
   
-  #TODO Find a way to fix derived points to narrow down cabs before using haversines
-  def sql(latitude,longitude)
-    %(
-      SELECT name, car_number, phone_number, ( 6371000 * acos( cos( radians(#{latitude}) ) * cos( radians( latitude ) ) * cos( radians(longitude) - radians(#{longitude}) ) + sin( radians(#{latitude}) ) * sin( radians(latitude)))) AS distance 
-      FROM DRIVERS 
-      WHERE distance < 4000 
+  def sql(latitude, longitude)
+    %(SELECT name, car_number, phone_number, ( 6371000 * acos( cos( radians(#{latitude}) ) * cos( radians( latitude ) ) * cos( radians(longitude) - radians(#{longitude}) ) + sin( radians(#{latitude}) ) * sin( radians(latitude)))) AS distance 
+      FROM
+      (SELECT name, car_number, phone_number, latitude, longitude FROM DRIVERS  
+      WHERE car_number IN (SELECT car_number 
+      FROM DRIVERS
+      WHERE latitude IS NOT NULL or longitude is NOT NULL)) WHERE distance < 4000 
       ORDER BY distance 
-      LIMIT 0 , 20;
+      LIMIT 0 , 20;  
     )
   end
 
