@@ -1,5 +1,3 @@
-# cj-app
-Django 1.11 - Python 2.7 
 
 IMPORTANT NOTES:
 
@@ -8,10 +6,6 @@ IMPORTANT NOTES:
     4. Make sure you follow the steps mentioned under "DOCKER START STEPS" and ensure that the steps execute successfully. 
 
 PROJECT START STEPS:
-
-    Pre-requisites:
-    1. Install need python and pip to be installed in your system.
-
 
     Steps:
     1. To run this application, do the following:
